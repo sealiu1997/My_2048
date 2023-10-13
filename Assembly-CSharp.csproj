@@ -59,12 +59,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets/Scripts/TileState.cs" />
-    <Compile Include="Assets/Scripts/TileCell.cs" />
-    <Compile Include="Assets/Scripts/TileRow.cs" />
-    <Compile Include="Assets/Scripts/TileGrid.cs" />
+    <Compile Include="Assets/Scripts/Cell.cs" />
+    <Compile Include="Assets/Scripts/CellRow.cs" />
+    <Compile Include="Assets/Scripts/CellGrid.cs" />
     <Compile Include="Assets/Scripts/Tile.cs" />
     <Compile Include="Assets/Scripts/GameManager.cs" />
-    <Compile Include="Assets/Scripts/TileBoard.cs" />
+    <Compile Include="Assets/Scripts/CellBoard.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets/TextMesh Pro/Shaders/TMPro.cginc" />
