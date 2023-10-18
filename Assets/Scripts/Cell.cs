@@ -9,15 +9,10 @@ public class Cell : MonoBehaviour
 
 
 
-    public bool IsEmpty()//判断是否为空
-    {
-        return tile == null;
-    }
+    public bool IsEmpty => tile == null;
 
-    public bool IsOccupied()//判断是否有tile
-    {
-        return tile != null;
-    }
+    public bool IsOccupied=> tile != null;
+    
 
     
 }

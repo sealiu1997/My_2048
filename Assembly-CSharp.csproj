@@ -65,6 +65,7 @@
     <Compile Include="Assets/Scripts/Tile.cs" />
     <Compile Include="Assets/Scripts/GameManager.cs" />
     <Compile Include="Assets/Scripts/CellBoard.cs" />
+    <Compile Include="Assets/Scripts/TileStateList.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets/TextMesh Pro/Shaders/TMPro.cginc" />

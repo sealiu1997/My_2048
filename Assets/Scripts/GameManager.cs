@@ -29,11 +29,13 @@ public class GameManager : MonoBehaviour
 
     public void GameOver()//结束游戏：关闭board、保存分数、显示游戏结束面板
     {
+        print("game over1!");
         board.enabled = false;
-
+        print("game over2!");
+        gameOver.alpha = 255;
         gameOver.interactable = true;
-
-        SaveBestScore();//保存分数
+        print("game over3!");
+        PlayerPrefs.Save();//保存分数
     }
 
     public void InCreaseScore(int Points)//增加分数
@@ -43,7 +45,11 @@ public class GameManager : MonoBehaviour
 
     public void SaveBestScore()//保存最佳历史分数
     {
-
+        int HistoryScore = LoadBestScore();
+        if (score > HistoryScore)
+        {
+            PlayerPrefs.SetInt("HistoryScore", score);
+        }
     }
 
     private void SetScore(int num)//设定分数
@@ -57,7 +63,7 @@ public class GameManager : MonoBehaviour
 
     public int LoadBestScore()//加载最佳历史分数
     {
-        return 0;
+        return PlayerPrefs.GetInt("HistoryScore",0);
     }
 
 
