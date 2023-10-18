@@ -11,8 +11,8 @@ public class CellBoard : MonoBehaviour
     public CellGrid cellGrid;//关联cellgrid
     public List<Tile> tiles;//游戏中存在的tile List
     private bool waiting = false;//操作等待标识
-    private int MAXSTATENUM = 16;
-    private bool change = false;
+    private int MAXSTATENUM = 16;//state最大序列号
+    private bool change = false;//tile移动或合并标识位
 
 
     public void ClearBoard()//清除所有cell上绑定的tile、删除所有之前创建的tile
@@ -42,7 +42,7 @@ public class CellBoard : MonoBehaviour
        // print("4");
     }
 
-    private void Move(Vector2Int direction,int startX,int xStepLength,int startY,int yStepLength)//移动及规则函数
+    private void Move(Vector2Int direction,int startX,int xStepLength,int startY,int yStepLength)//遍历所有cell，判断是否含有tile、是否需要移动
     {
         for (int x = startX; x>=0 && x < cellGrid.width; x+=xStepLength)
         {
@@ -63,7 +63,7 @@ public class CellBoard : MonoBehaviour
         StartCoroutine(WaitForInput());
     }
 
-    private void MoveTile(Tile tile,Vector2Int direction)
+    private void MoveTile(Tile tile,Vector2Int direction)//移动判定函数
     {
         Cell cell = tile.cell;
         Cell nearCell = cellGrid.GetDirectionNerborCell(cell,direction);
@@ -72,7 +72,7 @@ public class CellBoard : MonoBehaviour
         {
             if (nearCell.IsOccupied)
             {
-                print("12");
+                
                 if (CanMerge(cell.tile, nearCell.tile))
                 {
                     
@@ -96,7 +96,7 @@ public class CellBoard : MonoBehaviour
        
     }
 
-    private bool CanMerge(Tile a,Tile b)
+    private bool CanMerge(Tile a,Tile b)//判定两个tile是否能合并
     {
         if (a.state == b.state && b.locked==false)
         {
@@ -109,7 +109,7 @@ public class CellBoard : MonoBehaviour
         
     }
 
-    private void MergeTile(Tile a, Tile b)
+    private void MergeTile(Tile a, Tile b)//tile合并操作函数
     {
         change = true;
 
@@ -125,7 +125,7 @@ public class CellBoard : MonoBehaviour
         
     }
 
-    private void UnLockedTile()
+    private void UnLockedTile()//解除所有tile锁
     {
         foreach(var tile in tiles)
         {
@@ -133,7 +133,7 @@ public class CellBoard : MonoBehaviour
         }
     }
 
-    public bool CheckForGameOver()
+    public bool CheckForGameOver()//检查是否符合游戏结束条件
     {
         if (tiles.Count != cellGrid.size)
         {
@@ -169,7 +169,7 @@ public class CellBoard : MonoBehaviour
         return true;
     }
 
-    private IEnumerator WaitForInput()
+    private IEnumerator WaitForInput()//更改输入等待状态、检查是否需要创建新tile、是否满足游戏结束条件、重制change标识位
     {
         waiting = true;
         yield return new WaitForSeconds(0.4f);
@@ -189,7 +189,7 @@ public class CellBoard : MonoBehaviour
         waiting = false;
     }
 
-    private void Awake()
+    private void Awake()//获取cellgird
     {
         cellGrid = GetComponentInChildren<CellGrid>();
         

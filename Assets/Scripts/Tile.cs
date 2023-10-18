@@ -17,7 +17,7 @@ public class Tile : MonoBehaviour
     public TextMeshProUGUI textNumber;//背景数字
 
 
-    public void Awake()
+    public void Awake()//获得Image、textNumber对象
     {
         backgoundImage = GetComponent<Image>();
         textNumber = GetComponentInChildren<TextMeshProUGUI>();
@@ -44,7 +44,7 @@ public class Tile : MonoBehaviour
         this.transform.position = cell.transform.position;
     }
 
-    public void MoveTo(Cell cell)//当tile移动到一个空cell时，tile更换绑定cell为新cell
+    public void MoveTo(Cell cell)//当tile移动到一个空cell时，tile更换绑定cell为新cell、播放移动动画
     {
         if (cell.IsEmpty)
         {
@@ -61,7 +61,7 @@ public class Tile : MonoBehaviour
         }
     }
 
-    public void MergeTo(Cell cell)//当tile移动到一个含有相同state的tile的cell时，升级自身并删除对应cell上的tile
+    public void MergeTo(Cell cell)//当tile移动到一个含有相同state的tile的cell时，升级自身并删除对应cell上的tile、播放移动动画
     {
         if (cell.IsOccupied)
         {

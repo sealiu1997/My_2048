@@ -75,7 +75,7 @@ public Cell GetRandomEmptyCell()//在空cell List中返回任一空cell
         height = size / cellRows.Length;
     }
 
-    public void Start()//初始化所有cell坐标，统计空cell
+    public void Start()//初始化所有cell坐标
     {
         SetAllCellsCoordinates();
 
