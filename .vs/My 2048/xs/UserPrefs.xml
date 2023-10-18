@@ -1,20 +1,26 @@
-﻿<Properties StartupConfiguration="{AE9DDECA-1EC9-5E69-0E86-C1837F47884E}|">
+﻿<Properties>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MultiItemStartupConfigurations />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/TileState.cs">
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="ffcaa7e3-0965-489e-8668-811befcb8ed7" />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Tile.cs">
     <Files>
-      <File FileName="Assets/Scripts/TileState.cs" Line="12" Column="1" />
+      <File FileName="Assets/Scripts/TileState.cs" />
+      <File FileName="Assets/Scripts/Tile.cs" Line="5" Column="22" />
+      <File FileName="Assets/Scripts/GameManager.cs" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="My 2048" expanded="True">
-            <Node name="Assets" expanded="True">
-              <Node name="Scripts" expanded="True">
-                <Node name="TileState.cs" selected="True" />
+            <Node name="Assembly-CSharp" expanded="True">
+              <Node name="Assets" expanded="True">
+                <Node name="Scripts" expanded="True">
+                  <Node name="Tile.cs" selected="True" />
+                </Node>
               </Node>
             </Node>
           </Node>
@@ -22,6 +28,4 @@
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="ac4be8a4-0a63-44f9-b104-a88eb413570b" />
 </Properties>

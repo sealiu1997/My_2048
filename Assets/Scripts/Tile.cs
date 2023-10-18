@@ -12,7 +12,7 @@ public class Tile : MonoBehaviour
     public TileState state;//绑定的state
     [HideInInspector]
     public bool locked;//对tile操作锁
-
+    public bool beMoved = false;//是否处于移动状态
     public Image backgoundImage;// 背景图片   
     public TextMeshProUGUI textNumber;//背景数字
 
@@ -56,6 +56,7 @@ public class Tile : MonoBehaviour
             this.cell = cell;
             this.cell.tile = this;
 
+            
             StartCoroutine(MoveAnimator(cell.transform.position));
             
         }
@@ -76,6 +77,7 @@ public class Tile : MonoBehaviour
             this.cell = cell;
             this.cell.tile = this;
 
+            
             StartCoroutine(MoveAnimator(cell.transform.position));
 
 
@@ -89,7 +91,9 @@ public class Tile : MonoBehaviour
         float elapsed = 0f;
         float duration = 0.1f;
         Vector3 from = transform.position;
-
+        beMoved = true;
+        
+        
         while (elapsed < duration)
         {
             transform.position = Vector3.Lerp(from, to, elapsed / duration);
@@ -97,5 +101,8 @@ public class Tile : MonoBehaviour
             yield return null;
         }
         transform.position = to;
+        beMoved = false;
+        
+  
     }
 }

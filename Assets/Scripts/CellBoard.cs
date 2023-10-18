@@ -14,6 +14,8 @@ public class CellBoard : MonoBehaviour
     private int MAXSTATENUM = 16;//state最大序列号
     private bool change = false;//tile移动或合并标识位
 
+    //public static int Count = 0;
+
 
     public void ClearBoard()//清除所有cell上绑定的tile、删除所有之前创建的tile
     {
@@ -133,6 +135,19 @@ public class CellBoard : MonoBehaviour
         }
     }
 
+    private bool CheckTileExistMove()//检查是否存在tile处于beMove状态
+    {
+        bool existMove = false;
+        foreach(var tile in tiles)
+        {
+            if (tile.beMoved)
+            {
+                existMove = true;
+            }
+        }
+        return existMove;
+    }
+
     public bool CheckForGameOver()//检查是否符合游戏结束条件
     {
         if (tiles.Count != cellGrid.size)
@@ -172,13 +187,13 @@ public class CellBoard : MonoBehaviour
     private IEnumerator WaitForInput()//更改输入等待状态、检查是否需要创建新tile、是否满足游戏结束条件、重制change标识位
     {
         waiting = true;
-        yield return new WaitForSeconds(0.4f);
+        yield return new WaitWhile(() => CheckTileExistMove());
 
         UnLockedTile();
 
         if (tiles.Count != cellGrid.size && change)
         {
-            print("0");
+            
             CreateTile();
         }
         if (CheckForGameOver())
