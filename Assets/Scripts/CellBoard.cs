@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = System.Random;
 
 public class CellBoard : MonoBehaviour
 {
@@ -13,6 +15,8 @@ public class CellBoard : MonoBehaviour
     private bool waiting = false;//操作等待标识
     private int MAXSTATENUM = 16;//state最大序列号
     private bool change = false;//tile移动或合并标识位
+
+    
 
     //public static int Count = 0;
 
@@ -31,12 +35,19 @@ public class CellBoard : MonoBehaviour
         tiles.Clear();
     }
 
+    public int ReturnRandomNum()
+    {
+        Random r = new Random(unchecked((int)DateTime.Now.Ticks));
+        int n = r.Next(1, 100);
+        return (n >= 90 ? 1 : 0);
+    }
+
     public void CreateTile()//创建tile：初始化tile并设置其状态、放到一个随机的空位置
     {
 
         Tile tile = Instantiate(tilePrefab, cellGrid.transform);
         //print("1");
-        tile.SetState(tileStates.tileStatesList[0]);
+        tile.SetState(tileStates.tileStatesList[ReturnRandomNum()]);
         //print("2");
         tile.ChangeCellAndCoord(cellGrid.GetRandomEmptyCell());
         //print("3");
