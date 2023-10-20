@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using DG.Tweening;
 
 public class GameManager : MonoBehaviour
 {
@@ -11,6 +12,8 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI bestScore;//最佳得分
 
     private int score = 0;//初始化分数
+    private Tweener gameover;
+
 
     public void NewGame()//开始游戏：还原分数、加载最高分数、隐藏游戏结束面板、初始化核心逻辑
     {
@@ -32,8 +35,11 @@ public class GameManager : MonoBehaviour
         print("game over1!");
         board.enabled = false;
         print("game over2!");
-        gameOver.alpha = 255;
-        gameOver.interactable = true;
+        //gameOver.alpha = 255;
+        
+        gameover = gameOver.DOFade(1, 1f);
+        gameover.OnComplete(()=> gameOver.interactable = true);
+        //gameOver.interactable = true;
         print("game over3!");
         PlayerPrefs.Save();//保存分数
     }

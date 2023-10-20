@@ -30,7 +30,10 @@ public class CellBoard : MonoBehaviour
 
         foreach(var tile in tiles)
         {
-            Destroy(tile.gameObject);
+
+            tile.DoTweenDestoryTileAnimator(tile);
+
+            //Destroy(tile.gameObject);
         }
         tiles.Clear();
     }
@@ -44,30 +47,35 @@ public class CellBoard : MonoBehaviour
 
     public void CreateTile()//创建tile：初始化tile并设置其状态、放到一个随机的空位置
     {
+        
 
         Tile tile = Instantiate(tilePrefab, cellGrid.transform);
-        //print("1");
+        
         tile.SetState(tileStates.tileStatesList[ReturnRandomNum()]);
-        //print("2");
-        tile.ChangeCellAndCoord(cellGrid.GetRandomEmptyCell());
-        //print("3");
+
+        Cell RandomCell = cellGrid.GetRandomEmptyCell();
+
+        tile.LinkCellAndCoord(RandomCell);
+       
         tiles.Add(tile);
-       // print("4");
+        tile.DoTweenCreateTileAnimator();
+       
     }
 
-    private void Move(Vector2Int direction,int startX,int xStepLength,int startY,int yStepLength)//遍历所有cell，判断是否含有tile、是否需要移动
+    private void MoveLevel(Vector2Int direction,int startX,int xStepLength,int startY,int yStepLength)//遍历所有cell，判断是否含有tile、是否需要移动
     {
         for (int x = startX; x>=0 && x < cellGrid.width; x+=xStepLength)
         {
             for (int y = startY; y >=0 && y < cellGrid.height; y+=yStepLength)
             {
                 Vector2Int coord = new Vector2Int(x,y);
-                //print("6");
+                
                 Cell cell = cellGrid.GetCell(coord);
-                //print("7");
+                
                 if (cell.IsOccupied)
                 {
-                    //print("1");
+
+                    //StartCoroutine(JudgeMoveTile(cell.tile, direction));
                     MoveTile(cell.tile,direction);
                 }
             }
@@ -75,6 +83,30 @@ public class CellBoard : MonoBehaviour
         
         StartCoroutine(WaitForInput());
     }
+
+    private void MoveVertical(Vector2Int direction, int startX, int xStepLength, int startY, int yStepLength)//遍历所有cell，判断是否含有tile、是否需要移动
+    {
+        for (int y = startY; y >= 0 && y < cellGrid.height; y += yStepLength)
+        {
+            for (int x = startX; x >= 0 && x < cellGrid.width; x += xStepLength)
+            {
+                Vector2Int coord = new Vector2Int(x, y);
+
+                Cell cell = cellGrid.GetCell(coord);
+
+                if (cell.IsOccupied)
+                {
+
+                    //StartCoroutine(JudgeMoveTile(cell.tile, direction));
+                    MoveTile(cell.tile,direction);
+                }
+            }
+
+        }
+
+        StartCoroutine(WaitForInput());
+    }
+
 
     private void MoveTile(Tile tile,Vector2Int direction)//移动判定函数
     {
@@ -89,7 +121,7 @@ public class CellBoard : MonoBehaviour
                 if (CanMerge(cell.tile, nearCell.tile))
                 {
                     
-                    MergeTile(cell.tile, nearCell.tile);
+                    MergeTile(cell.tile, nearCell.tile,direction);
                 }
                 break;
             }
@@ -106,8 +138,50 @@ public class CellBoard : MonoBehaviour
             }
         }
 
-       
+        
+
     }
+
+
+    private IEnumerator JudgeMoveTile(Tile tile, Vector2Int direction)//移动判定函数
+    {
+        Cell cell = tile.cell;
+        Cell nearCell = cellGrid.GetDirectionNerborCell(cell, direction);
+
+        while (nearCell != null)
+        {
+            if (nearCell.IsOccupied)
+            {
+
+                if (CanMerge(cell.tile, nearCell.tile))
+                {
+
+                    MergeTile(cell.tile, nearCell.tile,direction);
+                }
+                break;
+            }
+            else
+            {
+                if (nearCell.IsEmpty)
+                {
+
+                    change = true;
+                    tile.MoveTo(nearCell);
+                }
+                cell = tile.cell;//nearcell
+                nearCell = cellGrid.GetDirectionNerborCell(cell, direction);
+            }
+            yield return new WaitUntil(() => IsMoveOver(tile));
+        }
+
+
+    }
+
+    private bool IsMoveOver(Tile tile)
+    {
+        return tile.beMoved == false;
+    }
+
 
     private bool CanMerge(Tile a,Tile b)//判定两个tile是否能合并
     {
@@ -122,21 +196,30 @@ public class CellBoard : MonoBehaviour
         
     }
 
-    private void MergeTile(Tile a, Tile b)//tile合并操作函数
+    private void MergeTile(Tile a, Tile b, Vector2Int direction)//tile合并操作函数
     {
         change = true;
 
-        int index =tileStates.tileStatesList.IndexOf(a.state) + 1;
-        if (index >MAXSTATENUM) { index = MAXSTATENUM; }
-        TileState newState = tileStates.tileStatesList[index];
+        
+        TileState newState = ReturnHighState(a);
+
         tiles.Remove(b);
-        a.MergeTo(b.cell);
+        a.MergeTo(b.cell,newState,direction);
         a.locked = true;
   
-        a.SetState(newState);
+        
         gameManager.InCreaseScore(newState.number);
         
     }
+
+    private TileState ReturnHighState(Tile tile)
+    {
+        int index = tileStates.tileStatesList.IndexOf(tile.state) + 1;
+        if (index > MAXSTATENUM) { index = MAXSTATENUM; }
+       
+        return tileStates.tileStatesList[index];
+    }
+
 
     private void UnLockedTile()//解除所有tile锁
     {
@@ -237,19 +320,19 @@ public class CellBoard : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.W)||Input.GetKeyDown(KeyCode.UpArrow))
             {
-                Move(Vector2Int.up,0,1,1,1);
+                MoveVertical(Vector2Int.up,0,1,1,1);
             }
             else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
             {
-                Move(Vector2Int.down,0,1,cellGrid.height-2,-1);
+                MoveVertical(Vector2Int.down,0,1,cellGrid.height-2,-1);
             }
             else if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
             {
-                Move(Vector2Int.left,1,1,0,1);
+                MoveLevel(Vector2Int.left,1,1,0,1);
             }
             else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
             {
-                Move(Vector2Int.right,cellGrid.width-2,-1,0,1);
+                MoveLevel(Vector2Int.right,cellGrid.width-2,-1,0,1);
             }
         }
     }

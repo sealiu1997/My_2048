@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eefe11034ff5246eaabd177694543876, type: 3}
   m_Name: 65536
   m_EditorClassIdentifier: 
-  backgroundcolor: {r: 0.15565109, g: 0, b: 0.5283019, a: 1}
+  backgroundcolor: {r: 0.083857395, g: 0, b: 0.2830189, a: 1}
   textcolor: {r: 0.9716981, g: 0.93961376, b: 0.93961376, a: 1}
   number: 65536
