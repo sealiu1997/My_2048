@@ -39,7 +39,7 @@ public class Tile : MonoBehaviour
     {
         backgoundImage = GetComponent<Image>();
         textNumber = GetComponentInChildren<TextMeshProUGUI>();
-        //pivot = GetComponent<>(Transform.)();
+        pivot = GetComponent<RectTransform>().pivot;
     }
 
     public void SetState(TileState state)//设定新tile的state并设定背景图片的相关属性信息
@@ -209,17 +209,38 @@ public class Tile : MonoBehaviour
     {
         var Alpha0Color = new Color(backgoundImage.color.r, backgoundImage.color.g, backgoundImage.color.b, 0f);
         var Alpha1Color = new Color(backgoundImage.color.r, backgoundImage.color.g, backgoundImage.color.b, 1f);
-        //pivot = transform.position;
+        Vector2 PrePivot = pivot;
         //Vector3 pivot = transform.pivot;
         
 
 
         DTbeMergedTile1 = DOTween.To(() => Alpha1Color, value => tile.backgoundImage.color = value, Alpha0Color, playTime);//将tile的alpha通道值由1到0
 
-        if (direction == Vector2Int.up) { DTbeMergedTile2 = DOTween.To(() => new Vector3(1, 1, 1), value => tile.transform.localScale = value, new Vector3(1, 0, 1), playTime); }
-        if (direction == Vector2Int.down) { DTbeMergedTile2 = DOTween.To(() => new Vector3(1, 1, 1), value => tile.transform.localScale = value, new Vector3(1, 0, 1), playTime); }
-        if (direction == Vector2Int.left) { DTbeMergedTile2 = DOTween.To(() => new Vector3(1, 1, 1), value => tile.transform.localScale = value, new Vector3(0, 1, 1), playTime); }
-        if (direction == Vector2Int.right) { DTbeMergedTile2 = DOTween.To(() => new Vector3(1, 1, 1), value => tile.transform.localScale = value, new Vector3(0, 1, 1), playTime); }
+        if (direction == Vector2Int.up)
+        {
+            tile.pivot = new Vector2(0.5f, 1f);
+            DTbeMergedTile2 = DOTween.To(() => new Vector3(1, 1, 1), value => tile.transform.localScale = value, new Vector3(1, 0, 1), playTime);
+            
+            
+        }
+        if (direction == Vector2Int.down)
+        {
+            tile.pivot = new Vector2(0.5f, 0f);
+            DTbeMergedTile2 = DOTween.To(() => new Vector3(1, 1, 1), value => tile.transform.localScale = value, new Vector3(1, 0, 1), playTime);
+            //DTbeMergedTile2.OnComplete(() => tile.pivot = PrePivot);
+        }
+        if (direction == Vector2Int.left)
+        {
+            tile.pivot = new Vector2(0f, 0.5f);
+            DTbeMergedTile2 = DOTween.To(() => new Vector3(1, 1, 1), value => tile.transform.localScale = value, new Vector3(0, 1, 1), playTime);
+            //DTbeMergedTile2.OnComplete(() => tile.pivot = PrePivot);
+        }
+        if (direction == Vector2Int.right)
+        {
+            tile.pivot = new Vector2(1f, 0.5f);
+            DTbeMergedTile2 = DOTween.To(() => new Vector3(1, 1, 1), value => tile.transform.localScale = value, new Vector3(0, 1, 1), playTime);
+            //DTbeMergedTile2.OnComplete(() => tile.pivot = PrePivot);
+        }
 
         //DTdestoryTile2 = DOTween.To(() => new Vector3(1, 1, 1), value => tile.transform.localScale = value, new Vector3(0, 0, 0), playTime);//将tile的Scale由1到0
 

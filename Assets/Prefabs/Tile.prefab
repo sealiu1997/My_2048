@@ -95,7 +95,7 @@ MonoBehaviour:
   beMoved: 0
   backgoundImage: {fileID: 0}
   textNumber: {fileID: 0}
-  playTime: 0.3
+  playTime: 2
 --- !u!1 &2871940491548382323
 GameObject:
   m_ObjectHideFlags: 0
