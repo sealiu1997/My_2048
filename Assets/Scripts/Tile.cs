@@ -7,34 +7,39 @@ using DG.Tweening;
 
 public class Tile : MonoBehaviour
 {
-    //[HideInInspector]
+    [HideInInspector]
     public Cell cell;//绑定的cell
-    //[HideInInspector]
+    [HideInInspector]
     public TileState state;//绑定的state
     [HideInInspector]
     public bool locked;//对tile操作锁
     public bool beMoved = false;//是否处于移动状态
     public Image backgoundImage;// 背景图片   
     public TextMeshProUGUI textNumber;//背景数字
-    string preText;
-    string afterText;
-    public float playTime = 0.04f;
+    private Vector2 pivot;
+    //[HideInInspector]
+    public float playTime = 0.25f;//动画播放时间：需要在tilePrefab中更改
 
     private Tweener DTmove;
     private Tweener DTchangeColor;
     private Tweener DTdisapppearText;
     private Tweener DTappearText;
-    private Tweener DTbiggerText;
-    private Tweener DTsmallerText;
+
+
     private Tweener DTcreateTile1;
     private Tweener DTcreateTile2;
+    private Tweener DTbeMergedTile1;
+    private Tweener DTbeMergedTile2;
     private Tweener DTdestoryTile1;
     private Tweener DTdestoryTile2;
+
+
 
     public void Awake()//获得Image、textNumber对象
     {
         backgoundImage = GetComponent<Image>();
         textNumber = GetComponentInChildren<TextMeshProUGUI>();
+        //pivot = GetComponent<>(Transform.)();
     }
 
     public void SetState(TileState state)//设定新tile的state并设定背景图片的相关属性信息
@@ -57,7 +62,7 @@ public class Tile : MonoBehaviour
 
     //}
 
-    public void LinkCellAndCoord(Cell cell)//更改绑定的cell并更改position
+    public void LinkCellAndCoord(Cell cell)//链接绑定的cell并更改position到对应cell
     {
         if (this.cell != null)
         {
@@ -119,7 +124,7 @@ public class Tile : MonoBehaviour
     {
         if (cell.IsOccupied)
         {
-            DoTweenDestoryTileAnimator(cell.tile,direction);
+            DoTweenBeMergedTileAnimator(cell.tile,direction);
 
             //Destroy(cell.tile.gameObject);
 
@@ -200,48 +205,43 @@ public class Tile : MonoBehaviour
         
     }
 
-    private void DoTweenDestoryTileAnimator(Tile tile, Vector2Int direction)
+    private void DoTweenBeMergedTileAnimator(Tile tile, Vector2Int direction)
     {
         var Alpha0Color = new Color(backgoundImage.color.r, backgoundImage.color.g, backgoundImage.color.b, 0f);
         var Alpha1Color = new Color(backgoundImage.color.r, backgoundImage.color.g, backgoundImage.color.b, 1f);
+        //pivot = transform.position;
+        //Vector3 pivot = transform.pivot;
+        
 
-        DTdestoryTile1 = DOTween.To(() => Alpha1Color, value => tile.backgoundImage.color = value, Alpha0Color, playTime);//将tile的alpha通道值由1到0
 
-        if (direction == Vector2Int.up) { DTdestoryTile2 = DOTween.To(() => new Vector3(1, 1, 1), value => tile.transform.localScale = value, new Vector3(1, 0, 1), playTime); }
-        if (direction == Vector2Int.down) { DTdestoryTile2 = DOTween.To(() => new Vector3(1, 1, 1), value => tile.transform.localScale = value, new Vector3(1, 0, 1), playTime); }
-        if (direction == Vector2Int.left) { DTdestoryTile2 = DOTween.To(() => new Vector3(1, 1, 1), value => tile.transform.localScale = value, new Vector3(0, 1, 1), playTime); }
-        if (direction == Vector2Int.right) { DTdestoryTile2 = DOTween.To(() => new Vector3(1, 1, 1), value => tile.transform.localScale = value, new Vector3(0, 1, 1), playTime); }
+        DTbeMergedTile1 = DOTween.To(() => Alpha1Color, value => tile.backgoundImage.color = value, Alpha0Color, playTime);//将tile的alpha通道值由1到0
+
+        if (direction == Vector2Int.up) { DTbeMergedTile2 = DOTween.To(() => new Vector3(1, 1, 1), value => tile.transform.localScale = value, new Vector3(1, 0, 1), playTime); }
+        if (direction == Vector2Int.down) { DTbeMergedTile2 = DOTween.To(() => new Vector3(1, 1, 1), value => tile.transform.localScale = value, new Vector3(1, 0, 1), playTime); }
+        if (direction == Vector2Int.left) { DTbeMergedTile2 = DOTween.To(() => new Vector3(1, 1, 1), value => tile.transform.localScale = value, new Vector3(0, 1, 1), playTime); }
+        if (direction == Vector2Int.right) { DTbeMergedTile2 = DOTween.To(() => new Vector3(1, 1, 1), value => tile.transform.localScale = value, new Vector3(0, 1, 1), playTime); }
 
         //DTdestoryTile2 = DOTween.To(() => new Vector3(1, 1, 1), value => tile.transform.localScale = value, new Vector3(0, 0, 0), playTime);//将tile的Scale由1到0
 
-        DTdestoryTile1.OnComplete(() => Destroy(tile.gameObject));
+        DTbeMergedTile1.OnComplete(() => Destroy(tile.gameObject));
 
     }
 
     private void DoTweenMergeTileAnimator(TileState state)
     {
-        //preText = this.state.number.ToString();
+        
         this.state = state;
-        //afterText = state.number.ToString();
-        //string middleText = " ";
+      
 
         DTchangeColor = backgoundImage.DOColor(state.backgroundcolor, playTime);
         DTchangeColor = textNumber.DOColor(state.textcolor, playTime);
 
-        //DTdisapppearText = DOTween.To(() => preText, value => textNumber.text = value, middleText, playTime / 2);
-        //DTappearText = DOTween.To(() => middleText, value => textNumber.text = value, afterText, playTime / 2);
+        ;
 
         DTdisapppearText = textNumber.DOFade(0, playTime / 2);
         DTappearText = textNumber.DOFade(1, playTime / 2);
 
-        //DTsmallerText = DOTween.To(() => new Vector3(1, 1, 1), value => textNumber.transform.localScale = value, new Vector3(0, 0, 0), playTime/2);
-        //DTbiggerText = DOTween.To(() => new Vector3(0, 0, 0), value => textNumber.transform.localScale = value, new Vector3(1, 1, 1), playTime/2);
-
-        //DTbiggerText.Pause();
-        //DTsmallerText.OnComplete(() => {
-        //    textNumber.text = state.number.ToString();
-        //    DTbiggerText.PlayForward();
-        //});
+        
 
         DTappearText.Pause();
         DTdisapppearText.OnComplete(() =>
@@ -252,8 +252,6 @@ public class Tile : MonoBehaviour
         );
 
 
-        //backgoundImage.color = state.backgroundcolor;
-        //textNumber.color = state.textcolor;
-        //textNumber.text = state.number.ToString();
+        
     }
 }

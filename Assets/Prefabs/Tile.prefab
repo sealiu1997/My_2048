@@ -38,7 +38,7 @@ RectTransform:
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 105, y: 105}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 0.5000002, y: 0.5}
 --- !u!222 &7705921810169164240
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -92,8 +92,10 @@ MonoBehaviour:
   cell: {fileID: 0}
   state: {fileID: 0}
   locked: 0
+  beMoved: 0
   backgoundImage: {fileID: 0}
   textNumber: {fileID: 0}
+  playTime: 0.3
 --- !u!1 &2871940491548382323
 GameObject:
   m_ObjectHideFlags: 0

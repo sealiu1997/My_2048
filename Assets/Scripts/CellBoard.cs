@@ -76,12 +76,13 @@ public class CellBoard : MonoBehaviour
                 {
 
                     //StartCoroutine(JudgeMoveTile(cell.tile, direction));
-                    MoveTile(cell.tile,direction);
+                    //MoveTile(cell.tile,direction);
+                    change |= MoveTileLoop(cell.tile, direction);
                 }
             }
         }
-        
-        StartCoroutine(WaitForInput());
+        waiting = true;
+        //StartCoroutine(WaitForInput());
     }
 
     private void MoveVertical(Vector2Int direction, int startX, int xStepLength, int startY, int yStepLength)//遍历所有cell，判断是否含有tile、是否需要移动
@@ -98,13 +99,14 @@ public class CellBoard : MonoBehaviour
                 {
 
                     //StartCoroutine(JudgeMoveTile(cell.tile, direction));
-                    MoveTile(cell.tile,direction);
+                    //MoveTile(cell.tile,direction);
+                    change |= MoveTileLoop(cell.tile, direction);
                 }
             }
 
         }
-
-        StartCoroutine(WaitForInput());
+        waiting = true;
+        //StartCoroutine(WaitForInput());
     }
 
 
@@ -139,6 +141,40 @@ public class CellBoard : MonoBehaviour
         }
 
         
+
+    }
+
+    private bool MoveTileLoop(Tile tile, Vector2Int direction)//移动判定函数
+
+    {
+        Cell cell = null;
+        Cell nearCell = cellGrid.GetDirectionNerborCell(tile.cell, direction);
+
+        while (nearCell != null)
+        {
+            if (nearCell.IsOccupied)
+            {
+
+                if (CanMerge(tile, nearCell.tile))
+                {
+
+                    MergeTile(tile, nearCell.tile, direction);
+                    return true;
+                }
+                break;
+            }
+            
+                cell = nearCell;//nearcell
+                nearCell = cellGrid.GetDirectionNerborCell(nearCell, direction);
+            
+        }
+        if (cell != null)
+        {
+            tile.MoveTo(cell);
+            return true;
+        }
+
+        return false;
 
     }
 
@@ -334,6 +370,26 @@ public class CellBoard : MonoBehaviour
             {
                 MoveLevel(Vector2Int.right,cellGrid.width-2,-1,0,1);
             }
+        }
+    }
+
+    private void LateUpdate()
+    {
+        if (!CheckTileExistMove())
+        {
+            UnLockedTile();
+
+            if (tiles.Count != cellGrid.size && change)
+            {
+
+                CreateTile();
+            }
+            if (CheckForGameOver())
+            {
+                gameManager.GameOver();
+            }
+            change = false;
+            waiting = false;
         }
     }
 }
