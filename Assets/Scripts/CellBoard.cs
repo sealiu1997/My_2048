@@ -280,7 +280,14 @@ public class CellBoard : MonoBehaviour
         timer.nowTime = 0;
     }
 
-
+    public int GetRemainedTime()
+    {
+        if(timer.Actived && timer.fistChange)
+        {
+            return (int)(timer.targetTime - timer.nowTime);
+        }
+        return 0;
+    }
 
 
     private void UnLockedTile()//解除所有tile锁

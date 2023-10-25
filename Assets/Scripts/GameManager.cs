@@ -10,6 +10,8 @@ public class GameManager : MonoBehaviour
     public CanvasGroup gameOver;//关联的gameover画布
     public TextMeshProUGUI txtScore;//当前得分
     public TextMeshProUGUI bestScore;//最佳得分
+    public TextMeshProUGUI timeLimitedBestScore;//限时最佳得分
+    public TextMeshProUGUI remainedTime;//剩余时间
     public float time = 20;//限时模式时间
 
     private int gameMode = 0;//游戏模式
@@ -41,6 +43,7 @@ public class GameManager : MonoBehaviour
         gameOver.interactable = false;
 
         bestScore.text = LoadBestScore().ToString();//加载最高分数
+        timeLimitedBestScore.text = LoadTimeLimitedModeBestScore().ToString();
 
         board.ReSetLimitedTimeMode();
         board.ClearBoard();
@@ -91,13 +94,28 @@ public class GameManager : MonoBehaviour
             PlayerPrefs.SetInt("HistoryScore", score);
         }
     }
+    public void SaveTimeLimitedModeBestScore()//保存限时模式最佳历史分数
+    {
+        int HistoryScore = LoadTimeLimitedModeBestScore();
+        if (score > HistoryScore)
+        {
+            PlayerPrefs.SetInt("TimeLimitedModeHistoryScore", score);
+        }
+    }
 
     private void SetScore(int num)//设定分数
     {
         this.score = num;
         txtScore.text = score.ToString();
         //保存分数
-        SaveBestScore();
+        if (gameMode == 0)
+        {
+            SaveBestScore();
+        }
+        if (gameMode == 1)
+        {
+            SaveTimeLimitedModeBestScore();
+        }
 
     }
 
@@ -106,7 +124,10 @@ public class GameManager : MonoBehaviour
         return PlayerPrefs.GetInt("HistoryScore",0);
     }
 
-
+    public int LoadTimeLimitedModeBestScore()//加载限时模式最佳历史分数
+    {
+        return PlayerPrefs.GetInt("TimeLimitedModeHistoryScore", 0);
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -117,6 +138,6 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        remainedTime.text = board.GetRemainedTime().ToString() +"s";
     }
 }
