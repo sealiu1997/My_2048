@@ -12,11 +12,14 @@ public class CellBoard : MonoBehaviour
 
     public CellGrid cellGrid;//关联cellgrid
     public List<Tile> tiles;//游戏中存在的tile List
+    public Timer timer;
+
     private bool waiting = false;//操作等待标识
     private int MAXSTATENUM = 16;//state最大序列号
     private bool change = false;//tile移动或合并标识位
-
     
+
+
 
     //public static int Count = 0;
 
@@ -78,6 +81,10 @@ public class CellBoard : MonoBehaviour
                     //StartCoroutine(JudgeMoveTile(cell.tile, direction));
                     //MoveTile(cell.tile,direction);
                     change |= MoveTileLoop(cell.tile, direction);
+                    if (timer.fistChange == false)
+                    {
+                        timer.fistChange = change;
+                    }
                 }
             }
         }
@@ -101,6 +108,10 @@ public class CellBoard : MonoBehaviour
                     //StartCoroutine(JudgeMoveTile(cell.tile, direction));
                     //MoveTile(cell.tile,direction);
                     change |= MoveTileLoop(cell.tile, direction);
+                    if (timer.fistChange == false)
+                    {
+                        timer.fistChange = change;
+                    }
                 }
             }
 
@@ -110,39 +121,39 @@ public class CellBoard : MonoBehaviour
     }
 
 
-    private void MoveTile(Tile tile,Vector2Int direction)//移动判定函数
-    {
-        Cell cell = tile.cell;
-        Cell nearCell = cellGrid.GetDirectionNerborCell(cell,direction);
+    //private void MoveTile(Tile tile,Vector2Int direction)//移动判定函数
+    //{
+    //    Cell cell = tile.cell;
+    //    Cell nearCell = cellGrid.GetDirectionNerborCell(cell,direction);
 
-        while (nearCell != null)
-        {
-            if (nearCell.IsOccupied)
-            {
+    //    while (nearCell != null)
+    //    {
+    //        if (nearCell.IsOccupied)
+    //        {
                 
-                if (CanMerge(cell.tile, nearCell.tile))
-                {
+    //            if (CanMerge(cell.tile, nearCell.tile))
+    //            {
                     
-                    MergeTile(cell.tile, nearCell.tile,direction);
-                }
-                break;
-            }
-            else
-            {
-                if (nearCell.IsEmpty)
-                {
+    //                MergeTile(cell.tile, nearCell.tile,direction);
+    //            }
+    //            break;
+    //        }
+    //        else
+    //        {
+    //            if (nearCell.IsEmpty)
+    //            {
 
-                    change = true;
-                    tile.MoveTo(nearCell);
-                }
-                cell = tile.cell;//nearcell
-                nearCell = cellGrid.GetDirectionNerborCell(cell, direction);
-            }
-        }
+    //                change = true;
+    //                tile.MoveTo(nearCell);
+    //            }
+    //            cell = tile.cell;//nearcell
+    //            nearCell = cellGrid.GetDirectionNerborCell(cell, direction);
+    //        }
+    //    }
 
         
 
-    }
+    //}
 
     private bool MoveTileLoop(Tile tile, Vector2Int direction)//移动判定函数
 
@@ -179,44 +190,44 @@ public class CellBoard : MonoBehaviour
     }
 
 
-    private IEnumerator JudgeMoveTile(Tile tile, Vector2Int direction)//移动判定函数
-    {
-        Cell cell = tile.cell;
-        Cell nearCell = cellGrid.GetDirectionNerborCell(cell, direction);
+    //private IEnumerator JudgeMoveTile(Tile tile, Vector2Int direction)//移动判定函数
+    //{
+    //    Cell cell = tile.cell;
+    //    Cell nearCell = cellGrid.GetDirectionNerborCell(cell, direction);
 
-        while (nearCell != null)
-        {
-            if (nearCell.IsOccupied)
-            {
+    //    while (nearCell != null)
+    //    {
+    //        if (nearCell.IsOccupied)
+    //        {
 
-                if (CanMerge(cell.tile, nearCell.tile))
-                {
+    //            if (CanMerge(cell.tile, nearCell.tile))
+    //            {
 
-                    MergeTile(cell.tile, nearCell.tile,direction);
-                }
-                break;
-            }
-            else
-            {
-                if (nearCell.IsEmpty)
-                {
+    //                MergeTile(cell.tile, nearCell.tile,direction);
+    //            }
+    //            break;
+    //        }
+    //        else
+    //        {
+    //            if (nearCell.IsEmpty)
+    //            {
 
-                    change = true;
-                    tile.MoveTo(nearCell);
-                }
-                cell = tile.cell;//nearcell
-                nearCell = cellGrid.GetDirectionNerborCell(cell, direction);
-            }
-            yield return new WaitUntil(() => IsMoveOver(tile));
-        }
+    //                change = true;
+    //                tile.MoveTo(nearCell);
+    //            }
+    //            cell = tile.cell;//nearcell
+    //            nearCell = cellGrid.GetDirectionNerborCell(cell, direction);
+    //        }
+    //        yield return new WaitUntil(() => IsMoveOver(tile));
+    //    }
 
 
-    }
+    //}
 
-    private bool IsMoveOver(Tile tile)
-    {
-        return tile.beMoved == false;
-    }
+    //private bool IsMoveOver(Tile tile)
+    //{
+    //    return tile.beMoved == false;
+    //}
 
 
     private bool CanMerge(Tile a,Tile b)//判定两个tile是否能合并
@@ -256,6 +267,21 @@ public class CellBoard : MonoBehaviour
         return tileStates.tileStatesList[index];
     }
 
+    public void TimeLimitedMode(float time)
+    {
+        timer.SetTargetTime(time);
+        timer.Actived = true;
+
+    }
+    public void ReSetLimitedTimeMode()
+    {
+        timer.Actived = false;
+        timer.fistChange = false;
+        timer.nowTime = 0;
+    }
+
+
+
 
     private void UnLockedTile()//解除所有tile锁
     {
@@ -280,6 +306,12 @@ public class CellBoard : MonoBehaviour
 
     public bool CheckForGameOver()//检查是否符合游戏结束条件
     {
+        if(timer.Actived && timer.ItIsTime)//限时模式逻辑
+        {
+            
+            return true;
+        }
+
         if (tiles.Count != cellGrid.size)
         {
             return false;
@@ -310,6 +342,7 @@ public class CellBoard : MonoBehaviour
             }
         }
 
+        
         print("game over!");
         return true;
     }
@@ -371,6 +404,12 @@ public class CellBoard : MonoBehaviour
                 MoveLevel(Vector2Int.right,cellGrid.width-2,-1,0,1);
             }
         }
+
+        timer.IncreaseTime();
+        
+
+
+
     }
 
     private void LateUpdate()
@@ -387,9 +426,11 @@ public class CellBoard : MonoBehaviour
             if (CheckForGameOver())
             {
                 gameManager.GameOver();
+                timer.Actived = false;
             }
             change = false;
             waiting = false;
+            
         }
     }
 }

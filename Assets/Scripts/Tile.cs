@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine.UI;
 using DG.Tweening;
 
+
 public class Tile : MonoBehaviour
 {
     [HideInInspector]
@@ -16,7 +17,7 @@ public class Tile : MonoBehaviour
     public bool beMoved = false;//是否处于移动状态
     public Image backgoundImage;// 背景图片   
     public TextMeshProUGUI textNumber;//背景数字
-    private Vector2 pivot;
+    private RectTransform rtf;
     //[HideInInspector]
     public float playTime = 0.25f;//动画播放时间：需要在tilePrefab中更改
 
@@ -39,7 +40,7 @@ public class Tile : MonoBehaviour
     {
         backgoundImage = GetComponent<Image>();
         textNumber = GetComponentInChildren<TextMeshProUGUI>();
-        pivot = GetComponent<RectTransform>().pivot;
+        rtf = GetComponent<RectTransform>();
     }
 
     public void SetState(TileState state)//设定新tile的state并设定背景图片的相关属性信息
@@ -209,36 +210,41 @@ public class Tile : MonoBehaviour
     {
         var Alpha0Color = new Color(backgoundImage.color.r, backgoundImage.color.g, backgoundImage.color.b, 0f);
         var Alpha1Color = new Color(backgoundImage.color.r, backgoundImage.color.g, backgoundImage.color.b, 1f);
-        Vector2 PrePivot = pivot;
+        //Vector2 PrePivot = tile.rtf.pivot;
         //Vector3 pivot = transform.pivot;
-        
+        //Vector3 pretransform = rtf.localPosition;
 
 
         DTbeMergedTile1 = DOTween.To(() => Alpha1Color, value => tile.backgoundImage.color = value, Alpha0Color, playTime);//将tile的alpha通道值由1到0
 
         if (direction == Vector2Int.up)
         {
-            tile.pivot = new Vector2(0.5f, 1f);
-            DTbeMergedTile2 = DOTween.To(() => new Vector3(1, 1, 1), value => tile.transform.localScale = value, new Vector3(1, 0, 1), playTime);
+            tile.rtf.pivot = new Vector2(0.5f, 1f);
+            //rtf.localPosition = pretransform;
+            //rtf.transform.position += new Vector3((0.5f - PrePivot.x) * rtf.rect.width, (1f - PrePivot.y) * rtf.rect.height, 0);
+            DTbeMergedTile2 = DOTween.To(() => new Vector3(1, 1, 1), value => tile.rtf.localScale = value, new Vector3(1, 0, 1), playTime);
             
             
         }
         if (direction == Vector2Int.down)
         {
-            tile.pivot = new Vector2(0.5f, 0f);
-            DTbeMergedTile2 = DOTween.To(() => new Vector3(1, 1, 1), value => tile.transform.localScale = value, new Vector3(1, 0, 1), playTime);
+            tile.rtf.pivot = new Vector2(0.5f, 0f);
+            //rtf.localPosition = pretransform;
+            DTbeMergedTile2 = DOTween.To(() => new Vector3(1, 1, 1), value => tile.rtf.localScale = value, new Vector3(1, 0, 1), playTime);
             //DTbeMergedTile2.OnComplete(() => tile.pivot = PrePivot);
         }
         if (direction == Vector2Int.left)
         {
-            tile.pivot = new Vector2(0f, 0.5f);
-            DTbeMergedTile2 = DOTween.To(() => new Vector3(1, 1, 1), value => tile.transform.localScale = value, new Vector3(0, 1, 1), playTime);
+            tile.rtf.pivot = new Vector2(0f, 0.5f);
+            //rtf.localPosition = pretransform;
+            DTbeMergedTile2 = DOTween.To(() => new Vector3(1, 1, 1), value => tile.rtf.localScale = value, new Vector3(0, 1, 1), playTime);
             //DTbeMergedTile2.OnComplete(() => tile.pivot = PrePivot);
         }
         if (direction == Vector2Int.right)
         {
-            tile.pivot = new Vector2(1f, 0.5f);
-            DTbeMergedTile2 = DOTween.To(() => new Vector3(1, 1, 1), value => tile.transform.localScale = value, new Vector3(0, 1, 1), playTime);
+            tile.rtf.pivot = new Vector2(1f, 0.5f);
+            //rtf.localPosition = pretransform;
+            DTbeMergedTile2 = DOTween.To(() => new Vector3(1, 1, 1), value => tile.rtf.localScale = value, new Vector3(0, 1, 1), playTime);
             //DTbeMergedTile2.OnComplete(() => tile.pivot = PrePivot);
         }
 
