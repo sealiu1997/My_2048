@@ -53,15 +53,7 @@ public class Tile : MonoBehaviour
        
     }
 
-    //public void ChangeState(TileState state)//更改tile的state并更改背景图片的相关属性信息
-    //{
-        
-    //    preText = this.state.number.ToString();
-    //    this.state = state;
-    //    afterText = state.number.ToString();
 
-
-    //}
 
     public void LinkCellAndCoord(Cell cell)//链接绑定的cell并更改position到对应cell
     {

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Random = System.Random;
 
+
 public class CellBoard : MonoBehaviour
 {
     public GameManager gameManager;//关联的game manager
@@ -13,12 +14,17 @@ public class CellBoard : MonoBehaviour
     public CellGrid cellGrid;//关联cellgrid
     public List<Tile> tiles;//游戏中存在的tile List
     public Timer timer;
+    public HistoryStack stackManager;
 
+    public bool backState = false;
+    //public bool firstBack = true;
     private bool waiting = false;//操作等待标识
     private int MAXSTATENUM = 16;//state最大序列号
     private bool change = false;//tile移动或合并标识位
+    private StepMap stepMap;
     
 
+    
 
 
     //public static int Count = 0;
@@ -26,6 +32,7 @@ public class CellBoard : MonoBehaviour
 
     public void ClearBoard()//清除所有cell上绑定的tile、删除所有之前创建的tile
     {
+     
         foreach (var cell in cellGrid.AllCells)
         {
             cell.tile = null;
@@ -40,6 +47,72 @@ public class CellBoard : MonoBehaviour
         }
         tiles.Clear();
     }
+
+    public bool StackIsEmpty()
+    {
+        if (stackManager.historyStack.Count > 0)
+        {
+            return false;
+        }
+        return true;
+    }
+
+
+    public void RefreshBoard()
+    {
+
+
+        if (stackManager.historyStack.Count == 1)
+            {
+                stepMap = stackManager.historyStack.Peek();
+            }
+            else
+            {
+                stackManager.historyStack.Pop();
+                stepMap = stackManager.historyStack.Pop();
+            }
+
+        gameManager.SetScore(stepMap.score);
+
+        for (int i = 0; i < cellGrid.height; i++)
+        {
+            for (int j = 0; j < cellGrid.width; j++)
+            {
+                if (stepMap.map[i, j]!= 0 )
+                {
+                    CreateTile(new Vector2Int(j,i),stepMap.map[i, j]);
+                }
+                
+            }
+        }
+        CollectStepMapInformation();
+    }
+
+    public void CollectStepMapInformation()
+    {
+        stepMap = stackManager.InitStepMap(cellGrid.height, cellGrid.width);
+        for (int i = 0; i < cellGrid.height; i++)
+        {
+            for (int j = 0; j < cellGrid.width; j++)
+            {
+                if (cellGrid.GetCell(new Vector2Int(j, i)).IsOccupied)
+                {
+                    stepMap.map[i, j] = cellGrid.GetCell(new Vector2Int(j, i)).tile.state.number;
+                }
+                else
+                {
+                    stepMap.map[i, j] = 0;
+                }
+
+            }
+        }
+        stepMap.score = gameManager.ReturnNowScore();
+
+        stackManager.historyStack.Push(stepMap);
+        //firstBack = true;
+
+    }
+
 
     public int ReturnRandomNum()
     {
@@ -63,6 +136,25 @@ public class CellBoard : MonoBehaviour
         tiles.Add(tile);
         tile.DoTweenCreateTileAnimator();
        
+    }
+
+    public void CreateTile(Vector2Int coord,int stateNum)//创建tile：初始化tile并设置其状态为stateNum对应状态
+    {
+
+
+        Tile tile = Instantiate(tilePrefab, cellGrid.transform);
+
+
+        int Num = (int)Math.Log(stateNum, 2) - 1;
+        tile.SetState(tileStates.tileStatesList[Num]);
+
+        Cell cell = cellGrid.GetCell(coord);
+
+        tile.LinkCellAndCoord(cell);
+
+        tiles.Add(tile);
+        tile.DoTweenCreateTileAnimator();
+
     }
 
     private void MoveLevel(Vector2Int direction,int startX,int xStepLength,int startY,int yStepLength)//遍历所有cell，判断是否含有tile、是否需要移动
@@ -89,7 +181,10 @@ public class CellBoard : MonoBehaviour
             }
         }
         waiting = true;
-        //StartCoroutine(WaitForInput());
+        //if (change)
+        //{
+        //    CollectStepMapInformation();
+        //}
     }
 
     private void MoveVertical(Vector2Int direction, int startX, int xStepLength, int startY, int yStepLength)//遍历所有cell，判断是否含有tile、是否需要移动
@@ -117,43 +212,14 @@ public class CellBoard : MonoBehaviour
 
         }
         waiting = true;
-        //StartCoroutine(WaitForInput());
+        //if (change)
+        //{
+        //    CollectStepMapInformation();
+        //}
     }
 
 
-    //private void MoveTile(Tile tile,Vector2Int direction)//移动判定函数
-    //{
-    //    Cell cell = tile.cell;
-    //    Cell nearCell = cellGrid.GetDirectionNerborCell(cell,direction);
-
-    //    while (nearCell != null)
-    //    {
-    //        if (nearCell.IsOccupied)
-    //        {
-                
-    //            if (CanMerge(cell.tile, nearCell.tile))
-    //            {
-                    
-    //                MergeTile(cell.tile, nearCell.tile,direction);
-    //            }
-    //            break;
-    //        }
-    //        else
-    //        {
-    //            if (nearCell.IsEmpty)
-    //            {
-
-    //                change = true;
-    //                tile.MoveTo(nearCell);
-    //            }
-    //            cell = tile.cell;//nearcell
-    //            nearCell = cellGrid.GetDirectionNerborCell(cell, direction);
-    //        }
-    //    }
-
-        
-
-    //}
+    
 
     private bool MoveTileLoop(Tile tile, Vector2Int direction)//移动判定函数
 
@@ -190,44 +256,7 @@ public class CellBoard : MonoBehaviour
     }
 
 
-    //private IEnumerator JudgeMoveTile(Tile tile, Vector2Int direction)//移动判定函数
-    //{
-    //    Cell cell = tile.cell;
-    //    Cell nearCell = cellGrid.GetDirectionNerborCell(cell, direction);
-
-    //    while (nearCell != null)
-    //    {
-    //        if (nearCell.IsOccupied)
-    //        {
-
-    //            if (CanMerge(cell.tile, nearCell.tile))
-    //            {
-
-    //                MergeTile(cell.tile, nearCell.tile,direction);
-    //            }
-    //            break;
-    //        }
-    //        else
-    //        {
-    //            if (nearCell.IsEmpty)
-    //            {
-
-    //                change = true;
-    //                tile.MoveTo(nearCell);
-    //            }
-    //            cell = tile.cell;//nearcell
-    //            nearCell = cellGrid.GetDirectionNerborCell(cell, direction);
-    //        }
-    //        yield return new WaitUntil(() => IsMoveOver(tile));
-    //    }
-
-
-    //}
-
-    //private bool IsMoveOver(Tile tile)
-    //{
-    //    return tile.beMoved == false;
-    //}
+    
 
 
     private bool CanMerge(Tile a,Tile b)//判定两个tile是否能合并
@@ -354,25 +383,10 @@ public class CellBoard : MonoBehaviour
         return true;
     }
 
-    private IEnumerator WaitForInput()//更改输入等待状态、检查是否需要创建新tile、是否满足游戏结束条件、重制change标识位
-    {
-        waiting = true;
-        yield return new WaitWhile(() => CheckTileExistMove());
+   
 
-        UnLockedTile();
 
-        if (tiles.Count != cellGrid.size && change)
-        {
-            
-            CreateTile();
-        }
-        if (CheckForGameOver())
-        {
-            gameManager.GameOver();
-        }
-        change = false;
-        waiting = false;
-    }
+
 
     private void Awake()//获取cellgird
     {
@@ -392,7 +406,7 @@ public class CellBoard : MonoBehaviour
     void Update()//处理玩家的操作，根据input keycode映射移动方向
     {
         
-        if (!waiting)
+        if (!waiting && !backState)
         {
             if (Input.GetKeyDown(KeyCode.W)||Input.GetKeyDown(KeyCode.UpArrow))
             {
@@ -421,7 +435,7 @@ public class CellBoard : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (!CheckTileExistMove())
+        if (!CheckTileExistMove() && !backState)
         {
             UnLockedTile();
 
@@ -429,6 +443,7 @@ public class CellBoard : MonoBehaviour
             {
 
                 CreateTile();
+                CollectStepMapInformation();
             }
             if (CheckForGameOver())
             {

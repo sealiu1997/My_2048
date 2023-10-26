@@ -50,13 +50,28 @@ public class GameManager : MonoBehaviour
         board.CreateTile();
         board.CreateTile();
         board.enabled = true;
+        board.stackManager.historyStack.Clear();
+        board.CollectStepMapInformation();
     }
+
+    public void BackToPreStep()
+    {
+        if (!board.StackIsEmpty())
+        {
+            board.backState = true;
+            board.ClearBoard();
+            board.RefreshBoard();
+            board.backState = false;
+        }
+        
+    }
+
 
     public void GameOver()//结束游戏：关闭board、保存分数、显示游戏结束面板
     {
         
         board.enabled = false;
-
+        board.stackManager.historyStack.Clear();
         
 
         gameover = gameOver.DOFade(1, 1f);
@@ -103,7 +118,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void SetScore(int num)//设定分数
+    
+
+    public void SetScore(int num)//设定分数
     {
         this.score = num;
         txtScore.text = score.ToString();
@@ -117,6 +134,11 @@ public class GameManager : MonoBehaviour
             SaveTimeLimitedModeBestScore();
         }
 
+    }
+
+    public int ReturnNowScore()
+    {
+        return score;
     }
 
     public int LoadBestScore()//加载最佳历史分数
