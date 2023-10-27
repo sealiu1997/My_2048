@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class CellGrid : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class CellGrid : MonoBehaviour
     public int size;//cell数量
     public int height;//行高即行数
     public int width;//列长即列数
+    public int randomSeed = 1234;
 public void SetAllCellsCoordinates()//给所有cell赋值坐标
     {
         for(int i=0 ;i<cellRows.Length ;i++ )
@@ -47,10 +49,14 @@ public Cell GetDirectionNerborCell(Cell cell,Vector2Int direction)//根据方向
         return GetCell(coordinates);
     }
 
-
+public void SetGridRandomSeed()
+    {
+        Random.InitState(randomSeed);
+    }
 
 public Cell GetRandomEmptyCell()//在空cell List中返回任一空cell
     {
+        
         List<Cell> emptyCells = new List<Cell>();//空cell List
         foreach (var cell in AllCells)
         {
@@ -73,6 +79,7 @@ public Cell GetRandomEmptyCell()//在空cell List中返回任一空cell
         size = AllCells.Length;
         width = cellRows.Length;
         height = size / cellRows.Length;
+        
     }
 
     public void Start()//初始化所有cell坐标

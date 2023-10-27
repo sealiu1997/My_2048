@@ -2,7 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Random = System.Random;
+using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 
 public class CellBoard : MonoBehaviour
@@ -13,22 +14,44 @@ public class CellBoard : MonoBehaviour
 
     public CellGrid cellGrid;//关联cellgrid
     public List<Tile> tiles;//游戏中存在的tile List
+    public List<Vector2Int> operates;//记录游戏中的操作序列
     public Timer timer;
     public HistoryStack stackManager;
+    public int randomSeedNum;
 
-    public bool backState = false;
-    //public bool firstBack = true;
+    public bool backState = false;//是否处于回退状态
+    public bool bePlayed = false;//是否处于历史操作播放状态
     private bool waiting = false;//操作等待标识
     private int MAXSTATENUM = 16;//state最大序列号
     private bool change = false;//tile移动或合并标识位
     private StepMap stepMap;
-    
+    private float videoPlayTime = 1f;
 
-    
+
+    //public void FindButton()
+    //{
+    //    var tf = gameObject.transform;
+    //    var tf2 = tf.Find("GameOver/ButtonPlayHistoryVideo");
+    //    var btn = tf2.gameObject.GetComponent<Button>();
+    //}
 
 
     //public static int Count = 0;
 
+    public void SetRandomSeed()
+    {
+        randomSeedNum = ++cellGrid.randomSeed;
+        Random.InitState(cellGrid.randomSeed);
+        cellGrid.SetGridRandomSeed();
+    }
+
+
+    public void SetRandomSeed(int num)
+    {
+        cellGrid.randomSeed = num;
+        Random.InitState(cellGrid.randomSeed);
+        cellGrid.SetGridRandomSeed();
+    }
 
     public void ClearBoard()//清除所有cell上绑定的tile、删除所有之前创建的tile
     {
@@ -113,11 +136,76 @@ public class CellBoard : MonoBehaviour
 
     }
 
+    public bool AddOperatesToList(Vector2Int direction)
+    {
+        if (change)
+        {
+            operates.Add(direction);
+            return true;
+        }
+        return false;
+    }
+
+
+    public IEnumerator PlayHistoryVideo()
+    {
+        int Num = 0;
+        while(Num < operates.Count )
+        {
+            Vector2Int direction = operates[Num];
+
+            if ( direction==Vector2Int.up )
+            {
+                MoveVertical(Vector2Int.up, 0, 1, 1, 1);
+            }
+            else if (direction == Vector2Int.down)
+            {
+                MoveVertical(Vector2Int.down, 0, 1, cellGrid.height - 2, -1);
+            }
+            else if (direction == Vector2Int.left)
+            {
+                MoveLevel(Vector2Int.left, 1, 1, 0, 1);
+            }
+            else if (direction == Vector2Int.right)
+            {
+                MoveLevel(Vector2Int.right, cellGrid.width - 2, -1, 0, 1);
+            }
+
+            yield return new WaitForSeconds(videoPlayTime);
+            PlayLateCheck();
+            Num++;
+        }
+        bePlayed = false;
+        timer.Actived = false;
+        gameManager.ResetButtonActived("ButtonBackToPreStep");
+        gameManager.GameOver();
+    }
+
+    public void PlayLateCheck()
+    {
+        UnLockedTile();
+
+        if (tiles.Count != cellGrid.size && change)
+        {
+
+            CreateTile();
+            CollectStepMapInformation();
+        }
+        if (CheckForGameOver())
+        {
+            gameManager.GameOver();
+            bePlayed = false;
+            timer.Actived = false;
+        }
+        change = false;
+        
+    }
+
 
     public int ReturnRandomNum()
     {
-        Random r = new Random(unchecked((int)DateTime.Now.Ticks));
-        int n = r.Next(1, 100);
+        //Random r = new Random(unchecked((int)DateTime.Now.Ticks));
+        int n = Random.Range(0, 100);
         return (n >= 90 ? 1 : 0);
     }
 
@@ -181,6 +269,11 @@ public class CellBoard : MonoBehaviour
             }
         }
         waiting = true;
+        if (!bePlayed)
+        {
+            AddOperatesToList(direction);
+        }
+        
         //if (change)
         //{
         //    CollectStepMapInformation();
@@ -212,6 +305,10 @@ public class CellBoard : MonoBehaviour
 
         }
         waiting = true;
+        if (!bePlayed)
+        {
+            AddOperatesToList(direction);
+        }
         //if (change)
         //{
         //    CollectStepMapInformation();
@@ -391,9 +488,9 @@ public class CellBoard : MonoBehaviour
     private void Awake()//获取cellgird
     {
         cellGrid = GetComponentInChildren<CellGrid>();
-        
 
 
+        operates = new List<Vector2Int>();
         tiles = new List<Tile>();
     }
     // Start is called before the first frame update
@@ -406,7 +503,7 @@ public class CellBoard : MonoBehaviour
     void Update()//处理玩家的操作，根据input keycode映射移动方向
     {
         
-        if (!waiting && !backState)
+        if (!waiting && !backState && !bePlayed)
         {
             if (Input.GetKeyDown(KeyCode.W)||Input.GetKeyDown(KeyCode.UpArrow))
             {
@@ -426,7 +523,11 @@ public class CellBoard : MonoBehaviour
             }
         }
 
-        timer.IncreaseTime();
+        if (!bePlayed)
+        {
+            timer.IncreaseTime();
+        }
+        
         
 
 
@@ -435,7 +536,7 @@ public class CellBoard : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (!CheckTileExistMove() && !backState)
+        if (!CheckTileExistMove() && !backState && !bePlayed)
         {
             UnLockedTile();
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using DG.Tweening;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -13,6 +14,7 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI timeLimitedBestScore;//限时最佳得分
     public TextMeshProUGUI remainedTime;//剩余时间
     public float time = 20;//限时模式时间
+    public bool backOperate = false;
 
     private int gameMode = 0;//游戏模式
 
@@ -45,6 +47,7 @@ public class GameManager : MonoBehaviour
         bestScore.text = LoadBestScore().ToString();//加载最高分数
         timeLimitedBestScore.text = LoadTimeLimitedModeBestScore().ToString();
 
+        
         board.ReSetLimitedTimeMode();
         board.ClearBoard();
         board.CreateTile();
@@ -52,10 +55,18 @@ public class GameManager : MonoBehaviour
         board.enabled = true;
         board.stackManager.historyStack.Clear();
         board.CollectStepMapInformation();
+        if (backOperate == true)
+        {
+            backOperate = false;
+            ResetButtonActived("ButtonPlayHistoryVideo");
+        }
+        
+        
     }
 
     public void BackToPreStep()
     {
+        backOperate = true;
         if (!board.StackIsEmpty())
         {
             board.backState = true;
@@ -64,6 +75,35 @@ public class GameManager : MonoBehaviour
             board.backState = false;
         }
         
+    }
+
+    public void PlayHistoryVideo()
+    {
+
+        board.SetRandomSeed(board.randomSeedNum);
+        NewGame();
+        board.bePlayed = true;
+        if (gameMode == 1)
+        {
+            board.TimeLimitedMode(time);
+        }
+        ResetButtonActived("ButtonBackToPreStep");
+        board.StartCoroutine(board.PlayHistoryVideo());
+
+    }
+
+    public void ResetButtonActived(string buttonName)
+    {
+        Button button = GameObject.Find(buttonName).GetComponent<Button>();
+
+        if(button.interactable == true)
+        {
+            button.interactable =false;
+        }
+        else
+        {
+            button.interactable = true;
+        }
     }
 
 
@@ -76,23 +116,33 @@ public class GameManager : MonoBehaviour
 
         gameover = gameOver.DOFade(1, 1f);
         gameover.OnComplete(()=> gameOver.interactable = true);
+
+        if (backOperate)
+        {
+            ResetButtonActived("ButtonPlayHistoryVideo");
+        }
         
+
         PlayerPrefs.Save();//保存分数
     }
 
     public void StartOrdinaryMode()
     {
         gameMode = 0;
+        board.SetRandomSeed();
         NewGame();
         //board.TimeLimitedMode(time);
+        board.operates.Clear();
     }
 
 
     public void StartTimeLimitedMode()
     {
         gameMode = 1;
+        board.SetRandomSeed();
         NewGame();
         board.TimeLimitedMode(time);
+        board.operates.Clear();
     }
 
 
